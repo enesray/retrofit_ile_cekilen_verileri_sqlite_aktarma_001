@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.raytech.retrofit_ile_veri_cekmek_001.model.Albums;
 import com.raytech.retrofit_ile_veri_cekmek_001.service.APIService;
+import com.raytech.retrofit_ile_veri_cekmek_001.service.ApiURL;
 import com.raytech.retrofit_ile_veri_cekmek_001.sqlite.DatabaseHelper;
 
 import java.util.ArrayList;
@@ -23,9 +24,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<Albums> albumModels;
-    private String BASE_URL = "https://jsonplaceholder.typicode.com/";
     Retrofit retrofit;
     private DatabaseHelper dbHelper;
+    ApiURL apiURL = new ApiURL();
 
     @Override
 
@@ -35,14 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        Gson gson = new GsonBuilder().setLenient().create();
-        retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
+        retrofit = apiURL.getClient();
 
-        loadData(); //retrofit ile çekilen verilerin gösterilmesi için
-        addAlbum(); //çekilen verileri sqlite aktarmak için
+        loadData(); //retrofit ile çekilen verilerin gösterilmesi için ve verilerin sqlite veritabanına kaydedilmesi için
+
+        //addAlbum(); //çekilen verileri sqlite aktarmak için
     }
 
     private void loadData() {
@@ -60,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("UserID : " + albumModel.getUserId());
                         System.out.println("Başlık :" + albumModel.getTitle());
                         System.out.println("ID : " + albumModel.getId());
+                        dbHelper.addAlbums(albumModels); //sqlite aktarma
                     }
                 }
             }
